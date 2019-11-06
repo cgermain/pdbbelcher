@@ -43,7 +43,7 @@ def main():
 		line_count = 0
 		output_file_count= 1
 		first_line_not_found = True
-
+		previous_atom_number = 0
 
 		output_filename = make_output_filename(pdb_file, output_file_count)	
 		out_file = open(output_filename,'w+')
@@ -63,15 +63,23 @@ def main():
 
 				out_line = make_pdb_line(values)
 
-				if line_count < 1022:
+				if int(values[1]) > previous_atom_number:
+					previous_atom_number = int(values[1])
 					out_file.write(out_line)
 					line_count +=1
+
+				# We've found the start to a new list of atoms so...
+				# Close the old one.
+				# Reset all the counters.
+				# Write the line we just found to a new file.
 				else:
 					out_file.close()
+					previous_atom_number = 0
 					line_count = 0
 					output_file_count += 1
 					output_filename = make_output_filename(pdb_file, output_file_count)
 					out_file = open(output_filename, 'w+')
+					out_file.write(out_line)
 
 		out_file.close()
 		print("Belched out " + str(output_file_count) + " files.")
